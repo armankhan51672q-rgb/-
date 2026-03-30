@@ -3,93 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DRIP CLIENT Store</title>
+    <title>Arman VIP - Ultimate Admin (Multi-Access)</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        body { background: #0b0b0b; color: #fff; font-family: sans-serif; margin: 0; text-align: center; }
-        .header { background: linear-gradient(90deg, #ff007f, #8b00ff); padding: 20px; font-size: 24px; font-weight: bold; text-transform: uppercase; border-bottom: 2px solid #ff007f; }
-        .notice-bar { background: #1a1a1a; padding: 10px; color: #00ff00; font-size: 14px; border-bottom: 1px solid #333; }
-        .container { padding: 15px; display: grid; gap: 20px; }
-        .card { background: #161616; padding: 25px; border-radius: 20px; border: 1px solid #ff007f; position: relative; box-shadow: 0 0 15px rgba(255, 0, 127, 0.3); }
-        .logo-circle { width: 130px; height: 130px; border-radius: 50%; border: 3px solid #ff007f; padding: 5px; margin: 0 auto 15px; overflow: hidden; }
-        .logo-circle img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-        .panel-name { color: #ff007f; font-size: 24px; margin: 10px 0; font-weight: bold; }
-        .tag { color: #aaa; font-size: 16px; margin-bottom: 15px; display: block; }
-        .price { background: #ff007f; color: #fff; font-size: 22px; padding: 8px 25px; border-radius: 50px; display: inline-block; margin-bottom: 20px; font-weight: bold; }
-        .buy-btn { width: 100%; background: #00ff00; color: #000; border: none; padding: 15px; border-radius: 12px; font-size: 20px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0b0b0b; color: #fff; padding: 15px; margin: 0; }
+        .box { background: #161616; padding: 20px; border-radius: 15px; border: 1px solid #ff007f; margin-bottom: 20px; border-top: 5px solid #ff007f; }
+        h2 { color: #ff007f; text-align: center; text-transform: uppercase; font-size: 18px; }
+        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #333; background: #000; color: #0f0; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; border-radius: 8px; border: none; background: linear-gradient(90deg, #ff007f, #8b00ff); color: #fff; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 5px; transition: 0.3s; }
+        button:hover { filter: brightness(1.3); transform: translateY(-2px); }
+        .feature-list { height: 150px; overflow-y: scroll; background: #222; padding: 10px; border-radius: 8px; border: 1px solid #444; margin: 10px 0; }
+        .req-card { background: #222; padding: 12px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #00ff00; }
+        .panel-item { display: flex; justify-content: space-between; background: #111; padding: 10px; margin-top: 5px; border-radius: 5px; border: 1px solid #333; }
         
-        .tg-icon { position: fixed; bottom: 25px; right: 25px; width: 60px; filter: drop-shadow(0 0 10px #0088cc); z-index: 9999; cursor: pointer; }
-        
-        /* Payment Modal */
-        #paymentModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10000; backdrop-filter: blur(8px); padding: 20px; box-sizing: border-box; }
-        .modal-content { background:#1a1a1a; padding:25px; border-radius:25px; border: 1px solid #ff007f; max-width: 400px; margin: 40px auto; position: relative; box-shadow: 0 0 25px rgba(255, 0, 127, 0.2); animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        
-        .method-box { background: #222; padding: 12px; border-radius: 15px; margin: 10px 0; border: 1px solid #333; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: 0.3s; }
-        .method-box:hover { border-color: #ff007f; background: #292929; }
-        .method-info { display: flex; align-items: center; gap: 10px; }
-        .method-info img { width: 35px; border-radius: 8px; }
-        .method-info span { font-weight: bold; font-size: 15px; color: #eee; }
-        .copy-tag { background: #ff007f; color: #fff; font-size: 10px; padding: 4px 8px; border-radius: 4px; }
-
-        .trx-input { width:100%; padding:15px; margin:8px 0; border-radius:12px; border:1px solid #333; background:#0b0b0b; color:#00ff00; font-size: 16px; box-sizing: border-box; text-align: center; outline: none; }
-        .confirm-btn { width:100%; background: linear-gradient(90deg, #ff007f, #8b00ff); color:white; padding:15px; border:none; border-radius:12px; font-weight:bold; font-size:18px; cursor:pointer; margin-top: 5px; }
-        .close-btn { color:#fff; font-size: 30px; position: absolute; right: 15px; top: 10px; cursor: pointer; }
-
-        /* Success Page */
-        #success-page { display:none; padding: 30px 20px; }
-        .success-card { background: #161616; padding: 30px; border-radius: 25px; border: 2px solid #00ff00; box-shadow: 0 0 20px rgba(0, 255, 0, 0.2); margin-top: 20px; }
+        /* Login UI Styles */
+        #auth-screen { max-width: 400px; margin: 100px auto; text-align: center; }
+        .role-tag { background: #ff007f; color: #fff; padding: 2px 10px; border-radius: 20px; font-size: 12px; display: inline-block; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-<div class="header">DRIP CLIENT Store</div>
-<div class="notice-bar" id="notice">Loading...</div>
-
-<div id="main-content">
-    <div class="container" id="panel-container"></div>
+<div id="auth-screen" class="box">
+    <h2 style="color: #00ff00;">🔐 STAFF ACCESS</h2>
+    <input type="text" id="staff_user" placeholder="Enter Username">
+    <input type="password" id="staff_pass" placeholder="Enter Password">
+    <button onclick="checkLogin()">VERIFY & LOGIN</button>
 </div>
 
-<div id="success-page">
-    <div class="success-card">
-        <h2 style="color: #00ff00;">Payment Successful!</h2>
-        <div id="success-note" style="background:#222; padding:15px; border-radius:10px; color:#00ff00; border:1px dashed #00ff00; margin-bottom:15px; cursor:pointer;">Loading...</div>
-        <a href="#" id="success-link" target="_blank" style="display:block; background:#007bff; color:white; padding:15px; border-radius:10px; text-decoration:none; font-weight:bold;">Download Now</a>
-        <button onclick="goBack()" style="background:none; border:none; color:#ff007f; margin-top:20px; cursor:pointer;">[ GO BACK ]</button>
+<div id="admin-dashboard" style="display: none;">
+    <div class="box" style="border-top: 4px solid #00ff00;">
+        <h2 id="greet-user">Welcome Admin</h2>
+        <center><span id="user-role" class="role-tag">Role: Unknown</span></center>
     </div>
-</div>
 
-<div id="paymentModal">
-    <div class="modal-content">
-        <span onclick="closePay()" class="close-btn">&times;</span>
-        <h2 style="color:#ff007f; margin-bottom: 5px;">Deposit Now</h2>
-        <p style="color:#777; font-size: 12px; margin-bottom: 20px;">Click box to copy number</p>
-
-        <div class="method-box" onclick="copyNum('bkash')">
-            <div class="method-info">
-                <img src="https://itshamsul.com/wp-content/uploads/2023/10/Bkash-Logo.png">
-                <span>Bkash: <b id="bkash-num">...</b></span>
-            </div>
-            <div class="copy-tag">COPY</div>
-        </div>
-
-        <div class="method-box" onclick="copyNum('nagad')">
-            <div class="method-info">
-                <img src="https://admin.nagad.com.bd/media/nagad-logo.png" style="background:#fff;">
-                <span>Nagad: <b id="nagad-num">...</b></span>
-            </div>
-            <div class="copy-tag">COPY</div>
-        </div>
-
-        <input type="text" id="trxInput" class="trx-input" placeholder="Enter TrxID Here">
-        <button onclick="submitPayment()" class="confirm-btn">CONFIRM</button>
+    <div class="box" id="sec-payment" style="display: none;">
+        <h2>💰 Payment Requests</h2>
+        <div id="payment-list">Checking...</div>
     </div>
-</div>
 
-<a id="tg-link" href="#" target="_blank">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" class="tg-icon">
-</a>
+    <div class="box" id="sec-shop" style="display: none;">
+        <h2>📱 Shop Control</h2>
+        <div class="grid-inputs">
+            <input type="text" id="bk_num" placeholder="Bkash Number">
+            <input type="text" id="ng_num" placeholder="Nagad Number">
+        </div>
+        <button onclick="saveNumbers()">Update Payment Numbers</button>
+        <input type="text" id="not_text" placeholder="Notice Message">
+        <button onclick="updateData('notice', 'not_text')">Update Notice</button>
+        <input type="text" id="tg_url" placeholder="Telegram Group Link">
+        <button onclick="updateData('tg_url', 'tg_url')">Update Telegram</button>
+    </div>
+
+    <div class="box" id="sec-panel" style="display: none;">
+        <h2>➕ Add New Panel (100+ Features)</h2>
+        <input type="text" id="p_name" placeholder="Panel Name">
+        <input type="text" id="p_logo" placeholder="Logo Link">
+        <input type="number" id="p_price" placeholder="Price (৳)">
+        <p style="font-size: 12px; color: #aaa; margin: 5px 0;">Select Features:</p>
+        <div class="feature-list" id="feature-selector"></div>
+        <input type="text" id="p_desc" placeholder="Selected Features" readonly>
+        <button onclick="addPanel()">🚀 Deploy Panel</button>
+    </div>
+
+    <div class="box" id="sec-manage" style="display: none;">
+        <h2>📂 Active Panels</h2>
+        <div id="panels-list">Loading...</div>
+    </div>
+    
+    <button style="background: #333;" onclick="location.reload()">LOGOUT</button>
+</div>
 
 <script>
     const firebaseConfig = {
@@ -100,60 +84,96 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database().ref();
 
-    db.on('value', (snap) => {
-        const data = snap.val();
-        if(!data) return;
+    // স্টাফ এবং পারমিশন লিস্ট (আপনি এখান থেকে চেঞ্জ করবেন)
+    const STAFF_DATA = {
+        "arman_boss": { pass: "0000", role: "OWNER", access: ["payment", "shop", "panel", "manage"] },
+        "staff_pay": { pass: "1122", role: "MODERATOR", access: ["payment"] }, 
+        "staff_dev": { pass: "3344", role: "DEVELOPER", access: ["panel", "manage"] }
+    };
 
-        document.getElementById('notice').innerText = "Notice: " + (data.notice || "Welcome");
-        document.getElementById('tg-link').href = data.tg_url || "#";
+    function checkLogin() {
+        const user = document.getElementById('staff_user').value;
+        const pass = document.getElementById('staff_pass').value;
 
-        // নম্বর বিভাজন (Bkash, Nagad)
-        const nums = (data.pay_numbers || "017,019").split(',');
-        document.getElementById('bkash-num').innerText = nums[0] || "N/A";
-        document.getElementById('nagad-num').innerText = nums[1] || "N/A";
+        if(STAFF_DATA[user] && STAFF_DATA[user].pass === pass) {
+            const current = STAFF_DATA[user];
+            document.getElementById('auth-screen').style.display = "none";
+            document.getElementById('admin-dashboard').style.display = "block";
+            document.getElementById('greet-user').innerText = "Hello, " + user;
+            document.getElementById('user-role').innerText = "Role: " + current.role;
 
-        if(data.is_approved === "yes") {
-            document.getElementById('main-content').style.display = "none";
-            document.getElementById('success-page').style.display = "block";
-            document.getElementById('success-note').innerText = data.file_code || "No Note";
-            document.getElementById('success-link').href = data.file_url || "#";
+            // পারমিশন চেক করে সেকশন দেখানো
+            current.access.forEach(id => {
+                if(document.getElementById('sec-' + id)) {
+                    document.getElementById('sec-' + id).style.display = "block";
+                }
+            });
+            alert("Login Successful!");
         } else {
-            document.getElementById('main-content').style.display = "block";
-            document.getElementById('success-page').style.display = "none";
+            alert("Invalid Credentials!");
         }
+    }
 
-        const container = document.getElementById('panel-container');
-        container.innerHTML = "";
-        if(data.panels) {
-            Object.keys(data.panels).forEach(key => {
-                const p = data.panels[key];
-                container.innerHTML += `
-                    <div class="card">
-                        <div class="logo-circle"><img src="${p.logo}"></div>
-                        <div class="panel-name">${p.name}</div>
-                        <span class="tag">${p.desc}</span>
-                        <div class="price">৳ ${p.price}</div>
-                        <button class="buy-btn" onclick="openPay()">BUY NOW</button>
-                    </div>`;
+    // ১০০টি ফিচারের লিস্ট জেনারেট
+    const features = ["Aimbot 100%", "Aim Lock", "Auto Headshot", "Magic Bullet", "High Damage", "No Recoil", "Zero Shake", "Antenna Head", "Antenna Hand", "ESP Line", "ESP Name", "ESP Distance", "ESP Health", "Wallhack", "Chams Color", "Speed Hack 2x", "Fly Hack", "Ghost Hack", "Teleport Kill", "Underground Walk", "Auto Emote", "Unlock All Skin", "Night Mode", "HD Graphics", "Anti-Ban VIP", "Bypass Security", "No Grass", "No Fog", "Water Walk", "Fast Reload", "Infinite Ammo", "Rapid Fire", "Scope Zoom 8x", "Sensitivity 100x", "Lag Fix", "Device Unban", "ID Unban", "Auto Win", "Fast Medkit", "Run in Water"];
+    const selector = document.getElementById('feature-selector');
+    for(let i=1; i<=100; i++){
+        let fName = features[i-1] || `Premium Feature ${i}`;
+        selector.innerHTML += `<div><input type="checkbox" value="${fName}" onchange="updateDesc()" style="width:20px;"> ${fName}</div>`;
+    }
+
+    function updateDesc() {
+        const checked = Array.from(document.querySelectorAll('#feature-selector input:checked')).map(el => el.value);
+        document.getElementById('p_desc').value = checked.join(", ");
+    }
+
+    // --- আগের লজিকগুলো (Numbers, Notice, Panels) ---
+    function saveNumbers() {
+        const bk = document.getElementById('bk_num').value;
+        const ng = document.getElementById('ng_num').value;
+        if(bk && ng) { db.update({ pay_numbers: bk + "," + ng }); alert("Saved!"); }
+    }
+
+    function updateData(key, id) {
+        const val = document.getElementById(id).value;
+        if(val) { db.update({ [key]: val }); alert("Updated!"); }
+    }
+
+    db.child('payment_requests').on('value', (snap) => {
+        const list = document.getElementById('payment-list');
+        list.innerHTML = "";
+        const data = snap.val();
+        if (data) {
+            Object.keys(data).forEach(key => {
+                list.innerHTML += `<div class="req-card"><span>TrxID: ${data[key].trxID}</span> <button onclick="approve('${key}')" style="width:auto; background:#28a745; padding:5px 15px;">Approve</button></div>`;
+            });
+        } else { list.innerHTML = "No Requests"; }
+    });
+
+    db.child('panels').on('value', (snap) => {
+        const pList = document.getElementById('panels-list');
+        pList.innerHTML = "";
+        const data = snap.val();
+        if(data){
+            Object.keys(data).forEach(key => {
+                pList.innerHTML += `<div class="panel-item"><span>${data[key].name}</span> <button onclick="db.child('panels').child('${key}').remove()" style="width:auto; background:red; padding:5px;">Remove</button></div>`;
             });
         }
     });
 
-    function openPay() { document.getElementById('paymentModal').style.display = "block"; }
-    function closePay() { document.getElementById('paymentModal').style.display = "none"; }
-    function goBack() { db.update({ is_approved: "no" }); }
-
-    function copyNum(type) {
-        const num = document.getElementById(type + '-num').innerText;
-        navigator.clipboard.writeText(num);
-        alert(type.toUpperCase() + " number copied!");
+    function addPanel() {
+        const name = document.getElementById('p_name').value;
+        const logo = document.getElementById('p_logo').value;
+        const price = document.getElementById('p_price').value;
+        const desc = document.getElementById('p_desc').value;
+        if(name && price) { db.child('panels').push({ name, logo, price, desc }); alert("Panel Deployed!"); }
     }
 
-    function submitPayment() {
-        const trx = document.getElementById('trxInput').value;
-        if(!trx) return alert("Enter TrxID!");
-        db.child('payment_requests').push({ trxID: trx, time: new Date().toLocaleString() })
-        .then(() => { alert("Request Sent!"); closePay(); });
+    function approve(key) {
+        db.update({ is_approved: "yes" }).then(() => {
+            db.child('payment_requests').child(key).remove();
+            alert("Access Granted!");
+        });
     }
 </script>
 </body>
